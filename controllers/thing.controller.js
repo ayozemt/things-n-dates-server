@@ -3,7 +3,7 @@ const Thing = require("../models/Thing.model");
 module.exports.create = async (req, res, next) => {
   try {
     const { type, name, date, review, place, rating } = req.body;
-    const userId = req.user._id;
+    const userId = req.payload._id;
 
     if (!type || !name || !date) {
       return res
@@ -38,7 +38,7 @@ module.exports.list = async (req, res, next) => {
 
 module.exports.listByUser = async (req, res, next) => {
   try {
-    const userId = req.user._id;
+    const userId = req.payload._id;
 
     const things = await Thing.find({ user: userId });
 
