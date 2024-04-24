@@ -4,7 +4,7 @@ const thingSchema = new Schema(
   {
     type: {
       type: String,
-      enum: ["Book", "Concert", "Film", "Trip", "Food", "Activity", "Celebration"],
+      enum: ["Book", "Theater", "Concert", "Film", "Trip", "Food", "Activity", "Celebration"],
       required: true,
     },
     name: {
