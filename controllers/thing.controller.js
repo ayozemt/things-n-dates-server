@@ -26,13 +26,12 @@ module.exports.create = async (req, res, next) => {
       error.code === 11000 &&
       error.keyPattern &&
       error.keyPattern.name &&
+      error.keyPattern.type &&
       error.keyPattern.date
     ) {
-      return res
-        .status(400)
-        .json({
-          message: "There is already a Thing with the same name and date.",
-        });
+      return res.status(400).json({
+        message: "Thing already exists",
+      });
     }
     next(error);
   }
