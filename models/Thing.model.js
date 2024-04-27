@@ -40,7 +40,7 @@ const thingSchema = new Schema(
   }
 );
 
-thingSchema.index({ name: 1, type: 1 }, { unique: true });
+thingSchema.index({ name: 1, type: 1, user: 1 }, { unique: true });
 
 const Thing = model("Thing", thingSchema);
 
