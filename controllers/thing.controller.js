@@ -22,12 +22,7 @@ module.exports.create = async (req, res, next) => {
 
     return res.status(201).json(thing);
   } catch (error) {
-    if (
-      error.code === 11000 &&
-      error.keyPattern &&
-      error.keyPattern.name &&
-      error.keyPattern.type
-    ) {
+    if (error.code === 11000) {
       return res.status(400).json({
         message: "Thing already exists",
       });
