@@ -26,8 +26,7 @@ module.exports.create = async (req, res, next) => {
       error.code === 11000 &&
       error.keyPattern &&
       error.keyPattern.name &&
-      error.keyPattern.type &&
-      error.keyPattern.date
+      error.keyPattern.type
     ) {
       return res.status(400).json({
         message: "Thing already exists",
