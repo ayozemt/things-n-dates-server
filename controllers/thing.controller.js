@@ -10,6 +10,15 @@ module.exports.create = async (req, res, next) => {
         .status(400)
         .json({ message: "Bad request: type, name, date are mandatory" });
     }
+
+    const existingThing = await Thing.findOne({ type, name, user: userId });
+
+    if (existingThing) {
+      return res.status(400).json({
+        message: "Thing already exists for this user",
+      });
+    }
+
     const thing = await Thing.create({
       type,
       name,
