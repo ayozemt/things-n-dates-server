@@ -40,6 +40,8 @@ const thingSchema = new Schema(
   }
 );
 
+thingSchema.index({ name: 1, date: 1 }, { unique: true });
+
 const Thing = model("Thing", thingSchema);
 
 module.exports = Thing;
