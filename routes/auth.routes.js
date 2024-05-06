@@ -159,7 +159,7 @@ router.post("/reset-password/request", (req, res, next) => {
 
       // Compose the email message
       const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: `"things-n-dates" <${process.env.EMAIL_USER}>`,
         to: email,
         subject: "Password Reset",
         html: `<p>You are receiving this because you (or someone else) have requested the reset of the password for your things-n-dates account.</p>
