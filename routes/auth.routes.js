@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const nodemailer = require("nodemailer");
 
 // ℹ️ Handles password encryption
 const bcrypt = require("bcrypt");
@@ -126,6 +127,98 @@ router.get("/verify", isAuthenticated, (req, res, next) => {
 
   // Send back the token payload object containing the user data
   res.status(200).json(req.payload);
+});
+
+// POST /auth/reset-password/request - Request password reset
+router.post("/reset-password/request", (req, res, next) => {
+  const { email } = req.body;
+
+  // Find the user by email
+  User.findOne({ email })
+    .then((user) => {
+      if (!user) {
+        return res.status(404).json({ message: "User not found." });
+      }
+
+      // Generate a password reset token
+      const token = jwt.sign(
+        { userId: user._id },
+        process.env.RESET_PASSWORD_SECRET,
+        { expiresIn: "1h" }
+      );
+
+      // Create a nodemailer transporter
+      const transporter = nodemailer.createTransport({
+        // Add your email service configuration here
+        service: "outlook",
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASSWORD,
+        },
+      });
+
+      // Compose the email message
+      const mailOptions = {
+        from: `"things-n-dates" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: "Password Reset",
+        html: `<p>You are receiving this because you (or someone else) have requested the reset of the password for your things-n-dates account.</p>
+               <p>Please click on the following link, or paste this into your browser to complete the process:</p>
+               <p><a href="${process.env.ORIGIN}/reset-password/${token}">${process.env.ORIGIN}/reset-password/${token}</a></p>
+               <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`,
+      };
+
+      // Send the email
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error(error);
+          return res
+            .status(500)
+            .json({ message: "Error sending reset password email." });
+        } else {
+          console.log("Email sent: " + info.response);
+          res.status(200).json({
+            message: "Email sent with instructions to reset your password.",
+          });
+        }
+      });
+    })
+    .catch((err) => next(err));
+});
+
+// POST /auth/reset-password/:token - Reset password
+router.post("/reset-password/:token", (req, res, next) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  // Verify if the token is valid
+  jwt.verify(token, process.env.RESET_PASSWORD_SECRET, (err, decodedToken) => {
+    if (err) {
+      return res.status(400).json({ message: "Invalid or expired token." });
+    }
+
+    const { userId } = decodedToken;
+
+    // Find the user by ID
+    User.findById(userId)
+      .then((user) => {
+        if (!user) {
+          return res.status(404).json({ message: "User not found." });
+        }
+
+        // Encrypt the new password
+        const salt = bcrypt.genSaltSync(saltRounds);
+        const hashedPassword = bcrypt.hashSync(password, salt);
+
+        // Update user's password
+        user.password = hashedPassword;
+        return user.save();
+      })
+      .then(() => {
+        res.status(200).json({ message: "Password reset successfully." });
+      })
+      .catch((err) => next(err));
+  });
 });
 
 module.exports = router;
