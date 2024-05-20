@@ -24,6 +24,9 @@ app.use("/auth", authRoutes);
 const thingRoutes = require("./routes/thing.routes");
 app.use("/thing", thingRoutes);
 
+const tetrisScoreRoutes = require("./routes/tetrisScore.routes");
+app.use("/tetrisScore", tetrisScoreRoutes);
+
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
 require("./error-handling")(app);
 
